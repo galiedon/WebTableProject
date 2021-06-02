@@ -3,6 +3,8 @@ import os.path
 # ip
 LOCALHOST = '127.0.0.1'
 
+API_PORT = '5000'
+
 # dbname
 DB_TYPE = 'mysql'
 

@@ -17,6 +17,10 @@ class MysqlHelper(DBHelper):
     def cursor(self, new_cursor):
         self._cursor = new_cursor
 
+    def reconnect(self):
+        self.close()
+        self.connect(self.host, self.username, self.password, self.db_name)
+
     def connect(self, host, username, password, db_name):
         self.host = host
         self.username = username
