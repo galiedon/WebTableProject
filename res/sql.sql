@@ -8,6 +8,8 @@ product_num text,
 product_sum_price float,
 order_time date);
 
+create table data_src_tmp(id int primary key not null auto_increment,  order_id text, customer text, product_name text, product_per_price float,product_num text,product_sum_price float,order_time date);
+
 create table test.orders(id int primary key not null auto_increment,  
 order_id text, 
 customer text, 
