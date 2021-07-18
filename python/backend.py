@@ -7,7 +7,7 @@ from flask_cors import CORS, cross_origin
 from const import const
 from ado.data import Selection
 from dbhelper.mysqlHelper import MysqlHelper
-from import_data import  importTable
+from import_data import importTable
 
 
 class Backend(object):
@@ -34,8 +34,10 @@ class Backend(object):
             limit = request.args.get('limit', 100)
             page = int(page)
             limit = int(limit)
+            filter_data = request.args.get('filter_data', '')
+            filter_data = json.loads(filter_data)
 
-            result = self.db_helper.fetch_table_data(page, limit)
+            result = self.db_helper.fetch_table_data(page, limit, filter_data)
             ret = []
             for item in result:
                 # print(item)
@@ -67,6 +69,26 @@ class Backend(object):
             file.save(file_path)
             importTable(file_path)
             self.db_helper.reconnect()
+            return {'status': 200}
+
+        @self.app.route('/put_addition_file', methods=['POST'])
+        @cross_origin(supports_credentials=True)
+        def put_addition_file():
+            if 'file' not in request.files:
+                return {'status': 403}
+
+            data = request.get_json()
+            file = request.files['file']
+
+            file_path = os.path.join(const.ADDITION_FILE_PATH, file.filename[:-4]+"/")
+            os.mkdir(file_path)
+            file_path = os.path.join(file_path, file.filename)
+
+            file.save(file_path)
+            # self.db_helper.alter_table_data()
+
+            print(data)
+
             return {'status': 200}
 
 

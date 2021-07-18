@@ -140,9 +140,17 @@ class DBHelper(object):
         sql = 'select count(*) from orders'
         return self.query(sql)
 
-    def fetch_table_data(self, page, limit):
+    def fetch_table_data(self, page, limit, filter_data):
+
         min_id = page * limit
         max_id = page * limit + limit
-        sql = 'select * from orders order by id desc limit %d,%d;' % (min_id, max_id)
+        filter_param = ''
+        for key, value in filter_data.items():
+            filter_param += ' {0} = "{1}" and'.format(key, value)
+
+        if filter_param != '':
+            filter_param = 'where %s' % filter_param[:-3]
+
+        sql = 'select * from orders %s order by id desc limit %d,%d;' % (filter_param, min_id, max_id)
         print(sql)
         return self.query(sql)

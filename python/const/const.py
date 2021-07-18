@@ -10,7 +10,7 @@ DB_TYPE = 'mysql'
 
 USERNAME = 'root'
 
-PASSWORD = ''
+PASSWORD = '123456'
 
 DB_NAME = 'test'
 
@@ -21,6 +21,9 @@ RES_PATH = os.path.join(APP_PATH, '../res')
 EXCEL_FILE_NAME = 'data_from_deal.xlsx'
 
 EXCEL_FILE_PATH = os.path.join(RES_PATH, EXCEL_FILE_NAME)
+
+ADDITION_FILE_PATH = os.path.join(RES_PATH, "pics/")
+
 
 CREATE_SOURCE_TABLE_DEMO = \
     'create table src_data(C1 Text, C2 Text, C3 Text, C4 Text, C5 Text, C6 Text, C7 Text, C8 Text, ' \

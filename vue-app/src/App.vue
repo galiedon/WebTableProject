@@ -13,7 +13,7 @@
 						>
 					</el-col>
 					<el-col :span="temp">
-						<el-button round>搜索</el-button>
+						<el-button @click="handle_search" round>搜索</el-button>
 					</el-col>
 					<el-col :span="temp">
 						<el-button type="info" round>筛选</el-button>
@@ -26,17 +26,18 @@
 				<el-table
 					:data="table_data"
 					border
-					stripe
 					height="400"
 					max-height="400"
 					style="width: 100%"
+					@header-dragend="save_table_width"
+					:row-class-name="show_warming_data"
 				>
 					<el-table-column
 						prop="id"
 						label="行号"
 						float="left"
 						sortable
-						width="180"
+						width="50"
 					>
 					</el-table-column>
 					<el-table-column
@@ -44,18 +45,39 @@
 						:key="index"
 						:prop="key"
 						:label="value"
+						:index="index"
 						sortable
-						width="180"
+						:width="table_width_list[index]"
 					>
 					</el-table-column>
 					<el-table-column fixed="right" label="操作" width="100%">
 						<template slot-scope="scope">
-							<el-button
-								@click="handleClick(scope.row, scope.$index)"
-								type="text"
-								size="small"
-								>编辑</el-button
-							>
+							<el-row>
+								<el-col :span="8">
+									<el-button
+										@click="handleClick(scope.row, scope.$index, false)"
+										type="text"
+										size="small"
+										>查看</el-button
+									></el-col
+								>
+								<el-col :span="8">
+									<el-button
+										@click="handleClick(scope.row, scope.$index, true)"
+										type="text"
+										size="small"
+										>编辑</el-button
+									></el-col
+								>
+								<el-col :span="8">
+									<el-button
+										@click="upload_file_switch(scope.row, scope.$index)"
+										type="text"
+										size="small"
+										>附件添加</el-button
+									>
+								</el-col>
+							</el-row>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -76,6 +98,7 @@
 						></el-input>
 						<el-input
 							v-if="table_info[key].type == info_type.text"
+							:disabled="!can_edit"
 							v-model="cur_row[key]"
 							autocomplete="off"
 						></el-input>
@@ -83,6 +106,7 @@
 						<el-date-picker
 							v-if="table_info[key].type == info_type.time"
 							v-model="cur_row[key]"
+							:disabled="!can_edit"
 							type="datetime"
 							placeholder="选择日期时间"
 						>
@@ -92,6 +116,54 @@
 				<div slot="footer" class="dialog-footer">
 					<el-button @click="dialog_from_visible = false">取 消</el-button>
 					<el-button type="primary" @click="change_table_item(cur_row)"
+						>确 定</el-button
+					>
+				</div>
+			</el-dialog>
+
+			<el-dialog title="搜索内容" :visible.sync="search_data_visible">
+				<el-form>
+					<el-form-item
+						v-for="(value, key, index) in search_config"
+						:key="index"
+						:label-width="formLabelWidth"
+					>
+						<el-row v-if="check_search_null(search_config[key])">
+							<el-col :span="6">
+								<el-checkbox
+									v-model="search_config[key].enable_search"
+									:label="table_headers[key]"
+								></el-checkbox>
+							</el-col>
+							<el-col :span="12">
+								<el-input
+									v-if="search_config[key].type == info_type.label"
+									:disabled="!search_config[key].enable_search"
+									v-model="search_config[key].value"
+									autocomplete="off"
+								></el-input>
+								<el-input
+									v-if="search_config[key].type == info_type.text"
+									:disabled="!search_config[key].enable_search"
+									v-model="search_config[key].value"
+									autocomplete="off"
+								></el-input>
+
+								<el-date-picker
+									v-if="search_config[key].type == info_type.time"
+									:disabled="!search_config[key].cant_modify"
+									v-model="search_config[key].value"
+									type="datetime"
+									placeholder="选择日期时间"
+								>
+								</el-date-picker>
+							</el-col>
+						</el-row>
+					</el-form-item>
+				</el-form>
+				<div slot="footer" class="dialog-footer">
+					<el-button @click="search_data_visible = false">取 消</el-button>
+					<el-button type="primary" @click="search_data(cur_row)"
 						>确 定</el-button
 					>
 				</div>
@@ -108,6 +180,7 @@
 					:file-list="file_list"
 					:auto-upload="false"
 					:on-success="upload_success"
+					:data="cur_row"
 				>
 					<i class="el-icon-upload"></i>
 					<div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -120,6 +193,33 @@
 						>取 消</el-button
 					>
 					<el-button @click="submitUpload()">上传</el-button>
+				</div>
+			</el-dialog>
+
+
+			<el-dialog title="上传附件" :visible.sync="upload_file_visible"
+				><el-upload
+					class="upload-demo"
+					accept=".jpg,.png,.bmp"
+					action="http://127.0.0.1:5000/put_addition_file"
+					drag
+					multiple
+					ref="upload"
+					:file-list="file_list"
+					:auto-upload="false"
+					:on-success="upload_success"
+				>
+					<i class="el-icon-upload"></i>
+					<div class="el-upload__text">将图片拖到此处，或<em>点击上传</em></div>
+					<div class="el-upload__tip" slot="tip">
+						只能上传jpg,png,bmp文件，且不超过500kb
+					</div>
+				</el-upload>
+				<div slot="footer" class="dialog-footer">
+					<el-button @click="upload_data_dialog_visiable = false"
+						>取 消</el-button
+					>
+					<el-button @click="upload_pics()">上传</el-button>
 				</div>
 			</el-dialog>
 			<!-- Footer -->
@@ -160,14 +260,35 @@ export default {
 			formLabelWidth: '200px',
 			table_info: test.table_info,
 			info_type: test.info_type,
+			search_config: test.search_config,
 			cur_id: 0,
+			// 更新数据显示界面
 			upload_data_dialog_visiable: false,
 			file_list: [],
+			table_width_list: [],
+			data_filter: [],
+			// 搜索显示界面
+			search_data_visible: false,
+			tmp: null,
+			can_edit: false,
+			// 上传附件界面
+			upload_file_visible : false,
 		}
 	},
 	computed: {
 		table_data() {
-			return this.table_datas
+			var table_data_first = []
+			var table_data_second = []
+			// 需要处理置顶内容
+			for (var i = 0; i < this.table_datas.length; ++i) {
+				if (this.is_overdue_item(this.table_datas[i])) {
+					table_data_first.push(this.table_datas[i])
+				} else {
+					table_data_second.push(this.table_datas[i])
+				}
+			}
+
+			return table_data_first.concat(table_data_second)
 		},
 		max_page() {
 			return this.count / this.limit + 1
@@ -180,14 +301,116 @@ export default {
 			delete tmp['id']
 			return tmp
 		},
+		data_search() {
+			let keys = Object.keys(this.table_header)
+			var param = {}
+
+			for (var i = 0; i < keys.length; i++) {
+				if (this.search_config[keys[i]] != null) {
+					if (this.search_config[keys[i]].enable_search) {
+						param[keys[i]] = this.search_config[keys[i]].value
+					}
+				}
+			}
+			return param
+		},
 	},
 	methods: {
+
+		upload_file_switch(row, index) {
+			this.cur_row = Object.assign({}, row)
+			this.upload_file_visible = true
+		},
+		is_overdue_item(row) {
+			var date = null
+			if (row['material_return_time'] == null) {
+				date = row['material_return_time']
+			} else if (row['cutting_time'] != null) {
+				date = row['cutting_time']
+			} else {
+				date = row['order_time']
+			}
+
+			date = this.time_string2date(date)
+			var curDate = new Date()
+			var days = (curDate - date) / (1000 * 3600 * 24)
+			if (days - test.warming_days >= 0) {
+				return true
+			} else {
+				return false
+			}
+		},
+		show_warming_data({ row, rowIndex }) {
+			if (this.is_overdue_item(row)) {
+				return 'warning-row'
+			} else {
+				return ''
+			}
+		},
+		search_data() {
+			// console.log(this.data_search)
+			this.fetch_data(this.cur_page, this.limit)
+			this.save_search_config()
+			this.search_data_visible = false
+		},
+		save_table_width(newWidth, oldWidth, column, event) {
+			this.$set(this.table_width_list, column.index, newWidth)
+			console.log('Save table width!')
+			localStorage.width_list = JSON.stringify(this.table_width_list)
+		},
+		save_other_datas() {
+			localStorage.limit_nums = this.limit_nums
+			localStorage.limit = this.limit
+			localStorage.page = this.page
+			localStorage.count = this.count
+		},
+		load_other_datas() {
+			if (localStorage.limit_nums != null) {
+				this.limit_nums = localStorage.limit_nums
+			}
+			if (localStorage.limit != null) {
+				this.limit = localStorage.limit
+			}
+			if (localStorage.page != null) {
+				this.page = localStorage.page
+			}
+			if (localStorage.count != null) {
+				this.count = localStorage.count
+			}
+		},
+		load_table_width() {
+			if (
+				localStorage.width_list == null ||
+				localStorage.width_list.length == 0
+			) {
+				this.table_width_list = Array(Object.keys(this.table_headers).length)
+				this.table_width_list.fill(180)
+			} else {
+				this.table_width_list = JSON.parse(localStorage.width_list)
+			}
+		},
+		load_search_config() {
+			if (localStorage.search_config == null) {
+				this.search_config = test.search_config
+			} else {
+				this.search_config = JSON.parse(localStorage.search_config)
+			}
+		},
+		// 保存过滤配置
+		save_search_config() {
+			console.log('Save search config')
+			localStorage.search_config = JSON.stringify(this.search_config)
+		},
 		upload_success() {
 			this.message_box('上传成功，正在重新获取数据...')
 			this.change_page(1)
 		},
 		submitUpload() {
 			this.upload_data_dialog_visiable = false
+			this.$refs.upload.submit()
+		},
+		upload_pics(){
+			this.upload_file_visible = false
 			this.$refs.upload.submit()
 		},
 		change_table_item(rows) {
@@ -233,10 +456,28 @@ export default {
 				date.getSeconds()
 			)
 		},
-		handleClick(row, index) {
+		time_string2date(date) {
+			return new Date(
+				Date.parse(date.replace('年', '-').replace('月', '-').replace('日', ''))
+			)
+		},
+		handleClick(row, index, can_edit) {
 			this.cur_id = index
 			this.dialog_from_visible = true
 			this.cur_row = Object.assign({}, row)
+
+			this.cur_row['cutting_time'] = this.time_string2date(
+				this.cur_row['cutting_time']
+			)
+
+			this.cur_row['material_return_time'] = this.time_string2date(
+				this.cur_row['material_return_time']
+			)
+			this.can_edit = can_edit
+		},
+		handle_search() {
+			this.search_data_visible = true
+			// console.log(this.search_config)
 		},
 		change_page: function (new_page) {
 			this.page = new_page
@@ -253,7 +494,15 @@ export default {
 			var temp = {}
 			var i = 0
 			for (let key in this.table_header) {
-				temp[key] = item[i]
+				if (
+					this.table_header[key] == this.table_header.order_time ||
+					this.table_header[key] == this.table_header.cutting_time ||
+					this.table_header[key] == this.table_header.material_return_time
+				) {
+					temp[key] = this.date2time_string(new Date(item[i]))
+				} else {
+					temp[key] = item[i]
+				}
 				i++
 			}
 			return temp
@@ -272,9 +521,11 @@ export default {
 				}
 				var cur_row = Object.assign({}, response.data.data)
 
-				cur_row['cutting_time'] = this.sec2date(cur_row['cutting_time'])
-				cur_row['material_return_time'] = this.sec2date(
-					cur_row['material_return_time']
+				cur_row['cutting_time'] = this.date2time_string(
+					new Date(cur_row['cutting_time'])
+				)
+				cur_row['material_return_time'] = this.date2time_string(
+					new Date(cur_row['material_return_time'])
 				)
 
 				// console.log(this.cur_row)
@@ -285,13 +536,24 @@ export default {
 						this.cur_row[key] != null &&
 						this.table_info[key].type == this.info_type.time
 					) {
-						this.cur_row[key] = this.date2time_string(this.cur_row[key])
+						this.cur_row[key] = this.date2time_string(
+							new Date(this.cur_row[key])
+						)
+						console.log(this.cur_row[key])
 					}
 				}
+
 				this.dialog_from_visible = false
 			})
 		},
+		check_search_null(data) {
+			if (data == null || data.type == null || data.value == null) {
+				return false
+			}
+			return true
+		},
 		fetch_data: function (page, limit) {
+			var filter_data = this.data_search
 			Vue.axios({
 				method: 'get',
 				url: 'http://127.0.0.1:5000/get_data',
@@ -301,6 +563,7 @@ export default {
 				params: {
 					page: page,
 					limit: limit,
+					filter_data: filter_data,
 				},
 			}).then((response) => {
 				this.table_datas = undefined
@@ -322,6 +585,8 @@ export default {
 		},
 	},
 	beforeMount() {
+		this.load_table_width()
+		this.load_search_config()
 		this.fetch_data(this.cur_page, this.limit)
 	},
 }
@@ -370,5 +635,10 @@ body > .el-container {
 
 .el-container:nth-child(7) .el-aside {
 	line-height: 320px;
+}
+
+.el-table .warning-row {
+	background: hsla(0, 87%, 71%, 0.557);
+	color: #555555;
 }
 </style>

@@ -165,95 +165,207 @@ let info_type = {
 
 let table_info = {
 	id: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	order_id: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	customer: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	product_name: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	product_per_price: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	product_num: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	product_sum_price: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	order_time: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.label,
 	},
 	cutting_time: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.time,
 	},
 	forg_company_name: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.text,
 	},
 	roughcast_price: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.text,
 	},
 	roughcast_processing_fee: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.text,
 	},
 	material_return_time: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.time,
 	},
 	manager_person_name: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.text,
 	},
 	processing_person_name: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.text,
 	},
 	priduct_processing_fee: {
-		cant_modify: false,
+		enable_search: false,
 		type: info_type.text,
 	},
 	roughcast_weight: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.text,
 	},
 	product_new_weight: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.text,
 	},
 	iron_filings_weight: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.text,
 	},
 	addition_file_path: {
-		cant_modify: true,
-		type: info_type.text,
+		enable_search: true,
+		type: info_type.file,
 	},
 	notes: {
-		cant_modify: true,
+		enable_search: true,
 		type: info_type.text,
 	},
 }
+let search_config = {
+	// id: {
+	// 	enable_search: false,
+	// 	type: info_type.label,
+	// 	value:""
+	// },
+	order_id: {
+		enable_search: false,
+		type: info_type.label,
+		value:""
+	},
+	customer: {
+		enable_search: false,
+		type: info_type.label,
+		value:""
+	},
+	product_name: {
+		enable_search: false,
+		type: info_type.label,
+		value:""
+	},
+	// product_per_price: {
+	// 	enable_search: false,
+	// 	type: info_type.label,
+	// 	value:""
+	// },
+	// product_num: {
+	// 	enable_search: false,
+	// 	type: info_type.label,
+	// 	value:""
+	// },
+	// product_sum_price: {
+	// 	enable_search: false,
+	// 	type: info_type.label,
+	// 	value:""
+	// },
+	// order_time: {
+	// 	enable_search: false,
+	// 	type: info_type.label,
+	// 	value:""
+	// },
+	// cutting_time: {
+	// 	enable_search: false,
+	// 	type: info_type.time,
+	// 	value:""
+	// },
+	forg_company_name: {
+		enable_search: false,
+		type: info_type.text,
+		value:""
+	},
+	// roughcast_price: {
+	// 	enable_search: false,
+	// 	type: info_type.text,
+	// 	value:""
+	// },
+	// roughcast_processing_fee: {
+	// 	enable_search: false,
+	// 	type: info_type.text,
+	// 	value:""
+	// },
+	// material_return_time: {
+	// 	enable_search: false,
+	// 	type: info_type.time,
+	// 	value:""
+	// },
+	manager_person_name: {
+		enable_search: false,
+		type: info_type.text,
+		value:""
+	},
+	processing_person_name: {
+		enable_search: false,
+		type: info_type.text,
+		value:""
+	},
+	// priduct_processing_fee: {
+	// 	enable_search: false,
+	// 	type: info_type.text,
+	// 	value:""
+	// },
+	// roughcast_weight: {
+	// 	enable_search: false,
+	// 	type: info_type.text,
+	// 	value:""
+	// },
+	// product_new_weight: {
+	// 	enable_search: false,
+	// 	type: info_type.text,
+	// 	value:""
+	// },
+	// iron_filings_weight: {
+	// 	enable_search: false,
+	// 	type: info_type.text,
+	// 	value:""
+	// },
+	// addition_file_path: {
+	// 	enable_search: false,
+	// 	type: info_type.text,
+	// 	value:""
+	// },
+	notes: {
+		enable_search: false,
+		type: info_type.text,
+		value:""
+	},
+}
+
+// 报警天数：距离最近汇报的消息超过这个天数就报警（置顶）
+var warming_days = 5
 
 let test = {
 	table_data,
 	table_header,
 	table_info,
 	info_type,
+	search_config,
+	warming_days
 }
 export default test
