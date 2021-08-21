@@ -110,7 +110,7 @@
 									:key="key"
 									:src="src_value"
 									:preview-src-list="[src_value]"
-									z-index="9999">
+									:z-index="img_z_index">
 								</el-image>
 						</template>
 						<el-date-picker
@@ -227,7 +227,7 @@
 					</div>
 				</el-upload>
 				<div slot="footer" class="dialog-footer">
-					<el-button @click="upload_data_dialog_visiable = false"
+					<el-button @click="upload_file_visible = false"
 						>取 消</el-button
 					>
 					<el-button @click="upload_pics()">上传</el-button>
@@ -285,6 +285,7 @@ export default {
 			// 上传附件界面
 			upload_file_visible : false,
 			image_src_list: [],
+			img_z_index: 9999,
 		}
 	},
 	computed: {
@@ -490,10 +491,13 @@ export default {
 
 		},
 		fetch_files(){
-			var file_id_list = this.cur_row['addition_file_path'].split(",")
-			console.log(file_id_list)
 			this.image_src_list = undefined
 			this.image_src_list = []
+			if(this.cur_row['addition_file_path'] == null){
+				return;
+			}
+			var file_id_list = this.cur_row['addition_file_path'].split(",")
+			console.log(file_id_list)
 			for(let id in file_id_list){
 				Vue.axios({
 					method: 'get',
