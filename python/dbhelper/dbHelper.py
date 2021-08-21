@@ -6,6 +6,7 @@ from dateutil.parser import parser
 def num2datetime(num):
     if num is None:
         return None
+    # d = datetime.fromtimestamp(num)
     d = datetime.fromtimestamp(num / 1000)
     str1 = d.strftime("%Y-%m-%d %H:%M:%S")
     return str1
@@ -146,7 +147,10 @@ class DBHelper(object):
         max_id = page * limit + limit
         filter_param = ''
         for key, value in filter_data.items():
-            filter_param += ' {0} = "{1}" and'.format(key, value)
+            if key == header[7] or key == header[8] or key == header[12]:
+                filter_param += ' {0} <= "{1}" and'.format(key, num2datetime(value))
+            else:
+                filter_param += ' {0} = "{1}" and'.format(key, value)
 
         if filter_param != '':
             filter_param = 'where %s' % filter_param[:-3]

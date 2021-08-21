@@ -285,16 +285,16 @@ let search_config = {
 	// 	type: info_type.label,
 	// 	value:""
 	// },
-	// order_time: {
-	// 	enable_search: false,
-	// 	type: info_type.label,
-	// 	value:""
-	// },
-	// cutting_time: {
-	// 	enable_search: false,
-	// 	type: info_type.time,
-	// 	value:""
-	// },
+	order_time: {
+		enable_search: false,
+		type: info_type.time,
+		value:""
+	},
+	cutting_time: {
+		enable_search: false,
+		type: info_type.time,
+		value:""
+	},
 	forg_company_name: {
 		enable_search: false,
 		type: info_type.text,
@@ -310,11 +310,11 @@ let search_config = {
 	// 	type: info_type.text,
 	// 	value:""
 	// },
-	// material_return_time: {
-	// 	enable_search: false,
-	// 	type: info_type.time,
-	// 	value:""
-	// },
+	material_return_time: {
+		enable_search: false,
+		type: info_type.time,
+		value:""
+	},
 	manager_person_name: {
 		enable_search: false,
 		type: info_type.text,

@@ -26,8 +26,8 @@
 				<el-table
 					:data="table_data"
 					border
-					height="400"
-					max-height="400"
+					height="700"
+					max-height="700"
 					style="width: 100%"
 					@header-dragend="save_table_width"
 					:row-class-name="show_warming_data"
@@ -161,7 +161,7 @@
 
 								<el-date-picker
 									v-if="search_config[key].type == info_type.time"
-									:disabled="!search_config[key].cant_modify"
+									:disabled="!search_config[key].enable_search"
 									v-model="search_config[key].value"
 									type="datetime"
 									placeholder="选择日期时间"
@@ -321,7 +321,11 @@ export default {
 			for (var i = 0; i < keys.length; i++) {
 				if (this.search_config[keys[i]] != null) {
 					if (this.search_config[keys[i]].enable_search) {
-						param[keys[i]] = this.search_config[keys[i]].value
+						if(this.search_config[keys[i]].type == this.info_type.time){
+							param[keys[i]] = this.date2sec(this.search_config[keys[i]].value) 
+						}else{
+							param[keys[i]] = this.search_config[keys[i]].value
+						}
 					}
 				}
 			}
@@ -361,7 +365,7 @@ export default {
 			}
 		},
 		search_data() {
-			// console.log(this.data_search)
+			console.log(this.data_search)
 			this.fetch_data(this.cur_page, this.limit)
 			this.save_search_config()
 			this.search_data_visible = false
