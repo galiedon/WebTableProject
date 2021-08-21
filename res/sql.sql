@@ -85,3 +85,9 @@ sql = 'update orders set cutting_time = DATE("%s"), forg_company_name = "%s", ro
 update orders set  cutting_time = DATE("{0}"), forg_company_name = "{1}", roughcast_price = {2}, roughcast_processing_fee = {3}, material_return_time = DATE("{4}"), manager_person_name = DATE("{5}"), processing_person_name = "{6}", priduct_processing_fee = {7}, roughcast_weight = {8}, product_new_weight = {9}, iron_filings_weight = {10}, addition_file_path = "{11}", notes = "{12}"  where id = {13};
 
  ["", "", "", "", "", "", "", "", "", "", "", "", "", 26879]
+
+--  插入附件
+insert into image(path)values("123");
+
+-- 查询id
+select id from image where path="%s";

@@ -102,7 +102,17 @@
 							v-model="cur_row[key]"
 							autocomplete="off"
 						></el-input>
-
+						<template
+							v-if="table_info[key].type == info_type.file">
+								<el-image 
+									style="width: 100px; height: 100px"
+									v-for="(src_value, key) in image_src_list"
+									:key="key"
+									:src="src_value"
+									:preview-src-list="[src_value]"
+									z-index="9999">
+								</el-image>
+						</template>
 						<el-date-picker
 							v-if="table_info[key].type == info_type.time"
 							v-model="cur_row[key]"
@@ -205,6 +215,7 @@
 					drag
 					multiple
 					ref="upload"
+					:data="cur_row"
 					:file-list="file_list"
 					:auto-upload="false"
 					:on-success="upload_success"
@@ -273,6 +284,7 @@ export default {
 			can_edit: false,
 			// 上传附件界面
 			upload_file_visible : false,
+			image_src_list: [],
 		}
 	},
 	computed: {
@@ -439,7 +451,7 @@ export default {
 			this.$message(str)
 		},
 		date2time_string(date) {
-			if (date == null) {
+			if (date == null || date.getTime() == 0) {
 				return ''
 			}
 			return (
@@ -474,6 +486,32 @@ export default {
 				this.cur_row['material_return_time']
 			)
 			this.can_edit = can_edit
+			this.fetch_files()
+
+		},
+		fetch_files(){
+			var file_id_list = this.cur_row['addition_file_path'].split(",")
+			console.log(file_id_list)
+			this.image_src_list = undefined
+			this.image_src_list = []
+			for(let id in file_id_list){
+				Vue.axios({
+					method: 'get',
+					url: 'http://127.0.0.1:5000/get_image',
+					headers: {
+						'Access-Control-Allow-Origin': '*',
+					},
+					params: {
+						file_id: file_id_list[id],
+					},
+				}).then((response) => {
+					if (response.data.status != 200) {
+						return
+					}
+					// console.log(response.data.data)
+					this.image_src_list.push(response.data.data)
+				})
+			}
 		},
 		handle_search() {
 			this.search_data_visible = true

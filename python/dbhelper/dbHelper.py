@@ -154,3 +154,38 @@ class DBHelper(object):
         sql = 'select * from orders %s order by id desc limit %d,%d;' % (filter_param, min_id, max_id)
         print(sql)
         return self.query(sql)
+
+    def insert_file(self, filepath, is_exist):
+        if not is_exist:
+            sql = 'insert into image(path)values("%s");' % filepath
+            print(sql)
+            self.exec(sql)
+
+        sql = 'select id from image where path="%s";' % filepath
+
+        return self.query(sql)
+
+    def update_file_data(self, order_info, file_id):
+
+        sql = 'select addition_file_path from orders where id = %s;' % order_info['id']
+        print(sql)
+        for addition_file_path in self.query(sql):
+            addition = addition_file_path[0]
+            if addition is None:
+                addition = ''
+            if addition != '':
+                addition += ','
+
+            addition += str(file_id)
+
+            sql = 'update orders set addition_file_path ="%s" where id = %s;' % (addition, order_info['id'])
+            print(sql)
+
+            self.exec(sql)
+        return
+
+    def get_file_path(self, file_id):
+
+        sql = 'select path from image where id="%s";' % file_id
+
+        return self.query(sql)
